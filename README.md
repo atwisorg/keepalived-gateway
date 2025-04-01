@@ -63,7 +63,7 @@ done > 1000M
 
 Place the generated files in any place convenient for you in the web server directory, available for download via the link.
 
-## Запуск
+## Running
 
 ### Running from the command line
 
