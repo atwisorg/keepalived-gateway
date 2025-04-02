@@ -22,7 +22,14 @@ Default value: 60 seconds: `PING_INTERVAL="60"`.
 Example of running ping once every 5 minutes: `PING_INTERVAL="300"`.
 
 ```shell
-PING_INTERVAL=""
+PING_INTERVAL="60"
+```
+
+Stop after sending count ECHO_REQUEST packets. With deadline option, ping waits for count ECHO_REPLY packets, until the timeout expires.
+Default value: 3
+
+```shell
+ECHO_REPLY="3"
 ```
 
 If there are more than one gateway and the file is available for downloading via http from a remote host, then use the following options to switch to the gateway with the highest bandwidth.

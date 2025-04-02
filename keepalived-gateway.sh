@@ -20,14 +20,27 @@
 
 CONFIG_FILE="${1:-/etc/keepalived-gateway.conf}"
 
-interval2sec ()
+is_number ()
 {
-    case "${1%[smhdwMy]}" in
+    case "${1:-}" in
         *[!0123456789]*)
-            echo "invalid value in the '$2' variable: '$1'"
-            echo "acceptable values for the '$2' variable are an integer indicating the number of [s]econds, [m]inutes, [h]ours, [d]ays, [w]eeks, [M]onths or [y]ears"
             return 1
     esac
+}
+
+invalid_value ()
+{
+    echo "invalid value in the '$1' variable: '$2'"
+}
+
+interval2sec ()
+{
+    is_number "${1%[smhdwMy]}" || {
+        invalid_value "$1" "$2"
+        echo "acceptable values for the '$2' variable are an integer indicating the number of [s]econds, [m]inutes, [h]ours, [d]ays, [w]eeks, [M]onths or [y]ears"
+        return 1
+    }
+
     case "$1" in
         *m) INTERVAL="${1%m}"
             INTERVAL="$((INTERVAL * 60))" ;;
@@ -79,11 +92,16 @@ include_config ()
         echo "$SPEEDTEST_INTERVAL"
         return 1
     }
+
+    is_number "${ECHO_REPLY:=3}" || {
+        invalid_value "ECHO_REPLY" "$ECHO_REPLY"
+        return 1
+    }
 }
 
 check_ping ()
 {
-    ping -W 3 -c 3 "$1" >/dev/null 2>&1
+    ping -W 3 -c "$ECHO_REPLY" "$1" >/dev/null 2>&1
 }
 
 get_gataway ()
