@@ -25,6 +25,13 @@ Example of running ping once every 5 minutes: `PING_INTERVAL="300"`.
 PING_INTERVAL="60"
 ```
 
+Time to wait for a response, in seconds. The option affects only timeout in absence of any responses, otherwise ping waits for two RTTs. 0 means infinite timeout.
+Default value: 3
+
+```shell
+PING_TIMEOUT="3"
+```
+
 Stop after sending count ECHO_REQUEST packets. With deadline option, ping waits for count ECHO_REPLY packets, until the timeout expires.
 Default value: 3
 

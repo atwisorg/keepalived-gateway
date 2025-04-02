@@ -93,6 +93,11 @@ include_config ()
         return 1
     }
 
+    is_number "${PING_TIMEOUT:=3}" || {
+        invalid_value "PING_TIMEOUT" "$PING_TIMEOUT"
+        return 1
+    }
+
     is_number "${ECHO_REPLY:=3}" || {
         invalid_value "ECHO_REPLY" "$ECHO_REPLY"
         return 1
@@ -101,7 +106,7 @@ include_config ()
 
 check_ping ()
 {
-    ping -W 3 -c "$ECHO_REPLY" "$1" >/dev/null 2>&1
+    ping -W "$PING_TIMEOUT" -c "$ECHO_REPLY" "$1" >/dev/null 2>&1
 }
 
 get_gataway ()
