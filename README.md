@@ -4,23 +4,32 @@ Maintaining an available gateway and default route.
 
 ## Creating a configuration file
 
-Gateway IP addresses separated by a space:
+Gateway IP addresses separated by a space.
 
 ```shell
 GATEWAY="IP [IP]..."
 ```
 
-IP address of the remote host located behind the gateways for checking ping:
+IP address of the remote host located behind the gateways for checking ping.
 
 ```shell
 REMOTE_HOST="IP"
+```
+
+Remote host availability check interval. If the remote host is not specified, ping to the current gateway is performed.
+Available units: [s]econds, [m]inutes, [h]ours, [d]ays, [w]eeks, [M]onths or [y]ears.
+Default value: 60 seconds: `PING_INTERVAL="60"`.
+Example of running ping once every 5 minutes: `PING_INTERVAL="300"`.
+
+```shell
+PING_INTERVAL=""
 ```
 
 If there are more than one gateway and the file is available for downloading via http from a remote host, then use the following options to switch to the gateway with the highest bandwidth.
 
 Path to an existing file on the remote host for speedtest.
 In a downloaded file, the size of each line should be 1 byte.
-example: `SPEEDTEST_PATH="download/100M"` or `SPEEDTEST_PATH="speedtest/10M"`.
+Example: `SPEEDTEST_PATH="download/100M"` or `SPEEDTEST_PATH="speedtest/10M"`.
 
 ```shell
 SPEEDTEST_PATH="path to the file on the remote host"
@@ -28,7 +37,7 @@ SPEEDTEST_PATH="path to the file on the remote host"
 
 Speedtest execution interval.
 Available units: [s]econds, [m]inutes, [h]ours, [d]ays, [w]eeks, [M]onths or [y]ears.
-example for running speedtest once per hour: `SPEEDTEST_INTERVAL="1h"`.
+Example for running speedtest once per hour: `SPEEDTEST_INTERVAL="1h"`.
 
 ```shell
 SPEEDTEST_INTERVAL="3600"

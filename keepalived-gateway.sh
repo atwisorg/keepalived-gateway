@@ -20,6 +20,32 @@
 
 CONFIG_FILE="${1:-/etc/keepalived-gateway.conf}"
 
+interval2sec ()
+{
+    case "${1%[smhdwMy]}" in
+        *[!0123456789]*)
+            echo "invalid value in the '$2' variable: '$1'"
+            echo "acceptable values for the '$2' variable are an integer indicating the number of [s]econds, [m]inutes, [h]ours, [d]ays, [w]eeks, [M]onths or [y]ears"
+            return 1
+    esac
+    case "$1" in
+        *m) INTERVAL="${1%m}"
+            INTERVAL="$((INTERVAL * 60))" ;;
+        *h) INTERVAL="${1%h}"
+            INTERVAL="$((INTERVAL * 3600))" ;;
+        *d) INTERVAL="${1%d}"
+            INTERVAL="$((INTERVAL * 86400))" ;;
+        *w) INTERVAL="${1%w}"
+            INTERVAL="$((INTERVAL * 604800))" ;;
+        *M) INTERVAL="${1%M}"
+            INTERVAL="$((INTERVAL * 2678400))" ;;
+        *y) INTERVAL="${1%y}"
+            INTERVAL="$((INTERVAL * 32140800))" ;;
+        *)  INTERVAL="${1%s}" ;;
+    esac
+    echo "$INTERVAL"
+}
+
 include_config ()
 {
     test -f "$CONFIG_FILE" || {
@@ -44,29 +70,15 @@ include_config ()
         return 1
     }
 
-    test "${SPEEDTEST_INTERVAL:-}" && {
-        case "${SPEEDTEST_INTERVAL%[smhdwMy]}" in
-            *[!0123456789]*)
-                echo "invalid value in the 'SPEEDTEST_INTERVAL' variable: '$SPEEDTEST_INTERVAL'"
-                echo "acceptable values for the 'SPEEDTEST_INTERVAL' variable are an integer indicating the number of [s]econds, [m]inutes, [h]ours, [d]ays, [w]eeks, [M]onths or [y]ears"
-                return 1
-        esac
-        case "$SPEEDTEST_INTERVAL" in
-            *s) SPEEDTEST_INTERVAL="${SPEEDTEST_INTERVAL%s}" ;;
-            *m) SPEEDTEST_INTERVAL="${SPEEDTEST_INTERVAL%m}"
-                SPEEDTEST_INTERVAL="$((SPEEDTEST_INTERVAL * 60))" ;;
-            *h) SPEEDTEST_INTERVAL="${SPEEDTEST_INTERVAL%h}"
-                SPEEDTEST_INTERVAL="$((SPEEDTEST_INTERVAL * 3600))" ;;
-            *d) SPEEDTEST_INTERVAL="${SPEEDTEST_INTERVAL%d}"
-                SPEEDTEST_INTERVAL="$((SPEEDTEST_INTERVAL * 86400))" ;;
-            *w) SPEEDTEST_INTERVAL="${SPEEDTEST_INTERVAL%w}"
-                SPEEDTEST_INTERVAL="$((SPEEDTEST_INTERVAL * 604800))" ;;
-            *M) SPEEDTEST_INTERVAL="${SPEEDTEST_INTERVAL%M}"
-                SPEEDTEST_INTERVAL="$((SPEEDTEST_INTERVAL * 2678400))" ;;
-            *y) SPEEDTEST_INTERVAL="${SPEEDTEST_INTERVAL%y}"
-                SPEEDTEST_INTERVAL="$((SPEEDTEST_INTERVAL * 32140800))" ;;
-        esac
-    } || SPEEDTEST_INTERVAL=3600
+    PING_INTERVAL="$(interval2sec "${PING_INTERVAL:-10}" PING_INTERVAL)" || {
+        echo "$PING_INTERVAL"
+        return 1
+    }
+
+    SPEEDTEST_INTERVAL="$(interval2sec "${SPEEDTEST_INTERVAL:-3600}" SPEEDTEST_INTERVAL)" || {
+        echo "$SPEEDTEST_INTERVAL"
+        return 1
+    }
 }
 
 check_ping ()
@@ -257,5 +269,5 @@ do
         echo "gateway is unavailable: '$CURRENT_GATEWAY'"
         false
     fi || test "$GATEWAY_NUM" -eq 1 || add_default_route
-    sleep 10
+    sleep "$PING_INTERVAL"
 done
